@@ -1,271 +1,232 @@
 /*
  * Zach Holst
- * CS 1150
- * Novemeber 14th, 2019
+ * CS1450 Sec 001
  * Assignment 10
- * The purpose of this assignment is to get an introduction to
- * objects and classes.  A book class and a library class are 
- * created, and different manipulations are done on these classes
- * to create, store, evaluate, and display the objects
+ * April  30, 2020
+ * The purpose of this assignment is to create a binary tree,
+ * and manipulate the tree by adding parrot objects and 
+ * traversing through the binary tree both in order to create 
+ * the birds song and from left to right to display all the names 
+ * the bird objects.
  */
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+
 public class HolstZachAssignment10 {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 
-		//define constant for book array length
-		final int BOOK_ARRAY_LENGTH = 5;
+		//create file and scanner for parrots file
+		File parrotFile = new File("parrots.txt");
+		Scanner parrots = new Scanner(parrotFile);
 
-		//create a int of some number for the library class to determine
-		//how many books there are in the library
-		int maxNumBooks = 100;
+		//create one binary tree object
+		BinaryTree binaryTree = new BinaryTree();
 
-		//create book objects, defining what the title, author, and page number
-		//of each book objecy is
-		Book book1 = new Book("Data Structures & Algorithms", "Michael Goodrich", 720);
-		Book book2 = new Book("The C++ Programming Language", "Bjarne Stroustrup", 1376);
-		Book book3 = new Book("Don't Make Me Think", "Steve Krug", 216);
-		Book book4 = new Book("The Elements of Java Style", "Jim Shur", 144);
-		Book book5 = new Book("The Design of Everyday Things", "Don Norman", 368);
+		//go through the file, create parrot objects, and add them to the binary tree
+		int id = 0;
+		String name = "";
+		String song =  "";
 
-		//create a book array (different from the books array within the library class)
-		Book[] bookArray = new Book[BOOK_ARRAY_LENGTH];
+		while(parrots.hasNext()) {
 
-		//Add all book objects to the book array
-		bookArray[0] = book1;
-		bookArray[1] = book2;
-		bookArray[2] = book3;
-		bookArray[3] = book4;
-		bookArray[4] = book5;
+			id = parrots.nextInt();
+			name = parrots.next();
+			song = parrots.next();
 
-		//print out all of the books, displaying their title, author, and page number
-		System.out.println("***************************************************************");
-		System.out.println("                         Books in Library");
-		System.out.println("***************************************************************");
-		System.out.println("");
-		System.out.printf("%1s%35s%22s", "Title", "Author", "Pages");
-		System.out.println("");
+			Parrot parrot = new Parrot(id, name, song);
 
-		for (int count = 0; count < bookArray.length; count++) {
-
-			System.out.printf("%-34s%-23s%1d", bookArray[count].getTitle(), bookArray[count].getAuthor(), bookArray[count].getPages());
-			System.out.println("");
+			binaryTree.insertParrot(parrot);	
 		}
 
-		//find which book has the least number of pages with the use of a for loop
-		//and an if statement, then display the book with the least number of page's
-		//title and author
-		System.out.println("");
-		System.out.println("Book with least number pages");
-		System.out.println("--------------------------------------------------");
+		//call methods to go through binary tree and print bird song
+		//and bird names
+		System.out.println("Parrot's Song\n--------------------");
+		binaryTree.levelOrder();
+		
+		System.out.println("\n\nLeaf Node Parrots\n--------------------");
+		binaryTree.visitLeaves();
 
-
-		int leastNumPages = bookArray[1].getPages();;
-		String titleLeastNumPages = "";
-		String leastNumPagesAuthor = "";
-
-		for(int count = 0; count < bookArray.length; count++) {
-
-			if(bookArray[count].getPages() <= leastNumPages) {
-
-				leastNumPages = bookArray[count].getPages();
-				titleLeastNumPages = bookArray[count].getTitle();
-				leastNumPagesAuthor = bookArray[count].getAuthor();
-
-			}
-
-		}
-
-		System.out.println("Title:   " + titleLeastNumPages );
-		System.out.println("Author:  " + leastNumPagesAuthor);
-
-		//find which book has the longest title with a for loop and if statement,
-		//reading the length of each title as a string
-		//display the book with the longest title's title and author
-		System.out.println("");
-		System.out.println("Book with the longest title");
-		System.out.println("--------------------------------------------------");
-
-		int longestTitleLength = bookArray[1].getTitle().length();
-		String longestTitle = "";
-		String longestTitleAuthor = "";
-
-		for(int count = 0; count < bookArray.length; count++) {
-
-			if(bookArray[count].getTitle().length() >= longestTitleLength) {
-
-				longestTitleLength = bookArray[count].getTitle().length();
-				longestTitle = bookArray[count].getTitle();
-				longestTitleAuthor = bookArray[count].getAuthor();
-
-			}
-		}
-
-		System.out.println("Title:   " + longestTitle );
-		System.out.println("Author:  " + longestTitleAuthor);
-		System.out.println("");
-		System.out.println("");
-
-
-		//Create a single library object where the book objects
-		//will be stored too
-		Library library = new Library(maxNumBooks);
-
-		//use the method within the library class to add all the book
-		//objects to the books array within the library class
-		library.addBook(book1);
-		library.addBook(book2);
-		library.addBook(book3);
-		library.addBook(book4);
-		library.addBook(book5);
-
-		//display again all the books, displaying their title, author, and page number.
-		//This time using the methods within the library class to access each book at 
-		//their given index to recieve the information from the Book object to print
-		System.out.println("***************************************************************");
-		System.out.println("                         Books in Library");
-		System.out.println("***************************************************************");
-		System.out.println("");
-		System.out.printf("%1s%35s%22s", "Title", "Author", "Pages");
-		System.out.println("");
-
-
-		for (int count = 0; count < bookArray.length; count++) {
-
-			System.out.printf("%-34s%-23s%1d",library.getBookAtIndex(count).getTitle(), library.getBookAtIndex(count).getAuthor(), library.getBookAtIndex(count).getPages());
-			System.out.println("");
-		}
-
-		//find which book has the least number of pages with the use of a for loop
-		//and an if statement, then display the book with the least number of page's
-		//title and author.  Use methods within the library class this time
-		System.out.println("");
-		System.out.println("Book with least number pages");
-		System.out.println("--------------------------------------------------");
-
-		leastNumPages = library.getBookAtIndex(1).getPages();
-		titleLeastNumPages = "";
-		leastNumPagesAuthor = "";
-
-		for(int count = 0; count < bookArray.length; count++) {
-
-			if(library.getBookAtIndex(count).getPages() <= leastNumPages) {
-
-				leastNumPages = library.getBookAtIndex(count).getPages();
-				titleLeastNumPages = library.getBookAtIndex(count).getTitle();
-				leastNumPagesAuthor = library.getBookAtIndex(count).getAuthor();
-
-			}
-
-		}
-
-
-		System.out.println("Title:   " + titleLeastNumPages );
-		System.out.println("Author:  " + leastNumPagesAuthor);
-
-		//find which book has the longest title with a for loop and if statement,
-		//reading the length of each title as a string
-		//display the book with the longest title's title and author.
-		//use methods within the library class this time
-		System.out.println("");
-		System.out.println("Book with the longest title");
-		System.out.println("--------------------------------------------------");
-
-		longestTitleLength = library.getBookAtIndex(1).getTitle().length();
-		longestTitle = "";
-		longestTitleAuthor = "";
-
-		for(int count = 0; count < bookArray.length; count++) {
-
-			if(library.getBookAtIndex(count).getTitle().length() >= longestTitleLength) {
-
-				longestTitleLength = library.getBookAtIndex(count).getTitle().length();
-				longestTitle = library.getBookAtIndex(count).getTitle();
-				longestTitleAuthor = library.getBookAtIndex(count).getAuthor();
-
-			}
-		}
-
-		System.out.println("Title:   " + longestTitle );
-		System.out.println("Author:  " + longestTitleAuthor);
-
+		parrots.close();
 	}
-
 }
 
-//Creates a book class.  Allows Book objects to be made to hold 
-//a title as a string, an author as a string, and number of 
-//pages as an int
-class Book {
+//this class represents one parrot object
+class Parrot {
 
-	private String title;
-	private String author;
-	private int pages;
+	private int id;
+	private String name;
+	private String songWord;
 
-	public Book (String title, String author, int pages) {
-		this.title = title;
-		this.author = author;
-		this.pages = pages;
+	public Parrot(int id, String name, String songWord) {
 
+		this.id = id;
+		this.name = name;
+		this.songWord = songWord;
 	}
 
-	//These three methods are getters, which create the book objects
-	public String getTitle() {
+	public String getName() {
 
-		return title;
-
+		return name;
 	}
 
-	public String getAuthor() {
+	public String sing() {
 
-		return author;
-
+		return songWord;	
 	}
 
-	public int getPages() {
+	public int compareTo(Parrot otherParrot) {
 
-		return pages;
+		if(otherParrot.id > this.id) {
 
+			return -1;
+		}
+
+		else if(otherParrot.id < this.id) {
+
+			return 1;
+		}
+
+		else {
+
+			return 0;
+		}
 	}
-
 }
 
-//Creates a library class that holds a string of book objects.
-class Library {
+//this class represents one binary tree that holds bird objects
+//has an inner private node class
+//has methods to insert, level order, and visit the leaf nodes
+//the visit leaves method is an example of a recursive method
+class BinaryTree {
 
-	private Book[] books;
-	private int numBooks;
+	private TreeNode root;
 
-	public Library(int maxNumBooks) {
+	public BinaryTree() {
 
-		this.books = new Book[maxNumBooks];
-
-		this.numBooks = 0;
-
+		this.root = null;
 	}
 
-	//returns how many books are left in the library
-	public int getNumBooks() {
+	public boolean insertParrot(Parrot parrotToAdd) {
 
-		return numBooks;
+		if(root == null) {
 
+			root = new TreeNode(parrotToAdd);
+		}
+
+		else {
+
+			TreeNode parent = null;
+			TreeNode current = root;
+
+			while(current != null) {
+
+				if(parrotToAdd.compareTo(current.parrot) < 0) {
+
+					parent = current;
+					current = current.left;
+				}
+
+				else if(parrotToAdd.compareTo(current.parrot) > 0) {
+
+					parent = current;
+					current = current.right;
+				}
+
+				else {
+
+					return false;
+				}	
+			}
+
+			if(parrotToAdd.compareTo(parent.parrot) < 0) {
+
+				parent.left = new TreeNode(parrotToAdd);
+			}
+
+			else {
+
+				parent.right = new TreeNode(parrotToAdd);
+			}
+		}
+
+		return true;
 	}
 
-	//this method accesses a book at the given index of the
-	//book array
-	public Book getBookAtIndex(int index) {
+	public void levelOrder() {
 
-		return books[index];
+		if(root != null) {
 
+			Queue<TreeNode> queue = new LinkedList<>();
+			queue.offer(root);
+		
+			while(!(queue.isEmpty())) {
+				
+				TreeNode tempNode = queue.remove();
+				
+				System.out.print(tempNode.parrot.sing() + " ");
+
+				if(tempNode.left != null) {
+
+					queue.offer(tempNode.left);
+				}
+
+				if(tempNode.right != null) {
+
+					queue.offer(tempNode.right);
+				}
+			}
+		}
 	}
 
-	//This method allows book objects to be added to the book array
-	//within the library class
-	public void addBook (Book bookToAdd) {
+	//recursive method, prints names of parrot objects that are leaf nodes
+	//within the binary tree
+	public void visitLeaves() {
 
-		books[numBooks] = bookToAdd;
-
-		numBooks++;
-
+		TreeNode aNode = root;
+		
+		visitLeaves(aNode);
 	}
 
+	private void visitLeaves(TreeNode aNode) {
+		
+		if(aNode != null) {
+		
+			if(aNode.right == null && aNode.left == null) {
+				
+				System.out.println(aNode.parrot.getName());
+				
+			}
+			
+			if(aNode.left != null) {
+				
+				visitLeaves(aNode.left);
+			}
+
+			if(aNode.right != null) {
+				
+				visitLeaves(aNode.right);
+			}
+		}
+	}
+
+	//private node class
+	//can move the node left and right
+	private class TreeNode {
+
+		private Parrot parrot;
+		private TreeNode right;
+		private TreeNode left;
+
+		public TreeNode(Parrot parrot) {
+
+			this.parrot = parrot;
+			this.right = null;
+			this.left = null;
+		}
+	}
 }

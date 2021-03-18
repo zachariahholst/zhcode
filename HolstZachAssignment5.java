@@ -1,118 +1,374 @@
 /*
  * Zach Holst
- * CS1150
- * October 3, 2019
+ * CS 1450 Sec 001
  * Assignment 5
- * The purpose of this program is to allow a user to enter sales amounts
- * for different coffee shops to estimate certain statistics about the
- * sales amounts.
+ * February 27, 2020
+ * This assigment gives practice into generic methods
+ * and classes, and using stacks.  It creates a generic
+ * class that creates a generic stack, and then 2 integer
+ * and 2 string classes must be created and manipulated 
+ * with methods in the generic class.  
  */
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
+
 public class HolstZachAssignment5 {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
-		//Create a new Scanner
-		Scanner input = new Scanner(System.in);
+		//Create two generic stacks that hold integer values
+		GenericStack<Integer> numStack1 = new GenericStack<>();
+		GenericStack<Integer> numStack2 = new GenericStack<>();
 
-		//prompt user to enter all sales
-		System.out.print("Enter sales from all stores, end input by entering -1: ");
+		//create file and scanner object for first number file to add
+		//to first numStack.  Do the same for the second numStack\
+		//use while(.hasNext) to go through the file
+		File numbers1 = new File("numbers1.txt");
+		Scanner number1File = new Scanner(numbers1);
 
-		//Define integers and doubles
-		int numSales = 1;
-		int userSalesInput = 0;
-		int salesLessThanOneThousand = 0;
-		int salesGreaterThanFiveThousand = 0;
-		int salesBetweenOneAndFiveThousand = 0;
-		double largest = 0;
-		double smallest = 0;
-		double range = 0;
-		double totalSalesAmount = 0;
+		while(number1File.hasNext()) {
 
-		//create a while loop that will end when the user inputs -1
-		while(userSalesInput != -1) {
-
-			//prompt for user input
-			userSalesInput = input.nextInt();
-			System.out.print(" ");
-
-			//use an if statement for when a sale is input to give certain variables their
-			//values for the statistics
-			if(userSalesInput != -1) {
-				System.out.print("Sales #" + numSales + ": ");
-
-				//use Math class to determine largest input and an if statement
-				//to find the smallest. use these to find the range
-
-				largest = Math.max(largest, userSalesInput);
-
-				if(userSalesInput < largest) {
-					smallest = userSalesInput;
-				}
-				range = largest - smallest;
-
-				//give total sales amount variable a value based on all inputs besides -1
-				totalSalesAmount = totalSalesAmount + userSalesInput;
-
-				//create another if statement to determine number of sales within different ranges
-				if(userSalesInput < 1000) {
-					salesLessThanOneThousand++;
-				}
-
-				else if((userSalesInput >= 1000) && (userSalesInput <= 5000)) {
-					salesBetweenOneAndFiveThousand++;
-				}
-
-				else if(userSalesInput > 5000) {
-					salesGreaterThanFiveThousand++;
-				}
-
-				//create another while loop to create the bar chart based on amount sale.
-				//each * is equivalent to $100 of sales
-				while(userSalesInput > 99) {
-
-					System.out.print("*");
-					userSalesInput = userSalesInput - 100;
-				}
-
-				//increase numSales variable by one to keep track of how many sales input
-				//the user has entered
-				System.out.println("");
-				numSales++;
-			}
-			//prevents from counting -1 as a sale
-			else {
-				numSales--;
-			}
+			numStack1.push(number1File.nextInt());
 
 		}
 
-		//create an if statement in case no sales were input and only -1 was input
-		if(numSales == 0) {
-			System.out.println("No sales amounts were entered except -1");
+		File numbers2 = new File("numbers2.txt");
+		Scanner number2File = new Scanner(numbers2);
+
+		while(number2File.hasNext()) {
+
+			numStack2.push(number2File.nextInt());
+
 		}
 
-		//if at least one sale input was entered, create table of statistics based off values
-		//found beforehand
-		else {
+		//print out both stacks, making sure they print in the order 
+		//they are in the stack and the stack remains in its original state
+		System.out.println("Numbers Stack 1 - filled with values from numbers1.txt");
+		System.out.println("------------------------------------------------------");
+
+		for(int count = numStack1.getSize()-1; count >= 0; count--) {
+
+			numStack1.printStack(count);
 			System.out.println("");
-			System.out.println("Number of sales amount     = " + numSales);
-			System.out.println("Largest sales amount       = " + largest);
-			System.out.println("Smallest sales amount      = " + smallest);
-			System.out.println("Sum of all sales amounts   = " + totalSalesAmount);
-			System.out.println("Range (largest - smallest) = " + range);
-			System.out.printf("Average                    = %.2f", totalSalesAmount/numSales);
-			System.out.println(" ");
-			System.out.println(" ");
-			System.out.println("Number of sales amounts less than $1000:  = " + salesLessThanOneThousand);
-			System.out.println("Number of sales amounts between $1000 and $5000:  = " + salesBetweenOneAndFiveThousand);
-			System.out.println("Number of sales amounts more than $5000:  = " + salesGreaterThanFiveThousand);
+
+		}
+		System.out.println("");
+		System.out.println("Numbers Stack 2 - filled with values from numbers2.txt");
+		System.out.println("------------------------------------------------------");
+
+		for(int count = numStack2.getSize() -1; count >= 0; count--) {
+
+			numStack2.printStack(count);
+			System.out.println("");
 
 		}
 
-		//close scanner and end program
-		input.close();
+		//create new stack to merge the two number stacks
+		GenericStack<Integer> mergedNumStack = new GenericStack<>();
+
+		//call merge method
+		mergeStacks(numStack1, numStack2, mergedNumStack);
+
+		//create final merged stack to reverse previous stack
+		//to print in the right order
+		GenericStack<Integer> finalMergedNumStack = new GenericStack<>();
+
+		//call method to reverse final stack
+		reverseStack(mergedNumStack, finalMergedNumStack);
+
+		//print final reversed merged stack
+		System.out.println("");
+		System.out.println("Merged Stack - lowest value on top");
+		System.out.println("------------------------------------------------------");
+		for(int count = finalMergedNumStack.getSize()-1; count >= 0; count--) {
+
+			finalMergedNumStack.printStack(count);
+			System.out.println("");
+
+		}
+
+		//Create two generic stacks that hold String values
+		GenericStack<String> mountainStack1 = new GenericStack<>();
+		GenericStack<String> mountainStack2 = new GenericStack<>();
+
+		//create file and scanner object for first mountain file to add
+		//to first mountainStack.  Do the same for the second mountainStack
+		//use while(.hasNext) to go through the file
+		File mountains1 = new File("mountains1.txt");
+		Scanner mountains1File = new Scanner(mountains1);
+
+		while(mountains1File.hasNext()) {
+
+			mountainStack1.push(mountains1File.nextLine());
+
+
+		}
+
+		File mountains2 = new File("mountains2.txt");
+		Scanner mountains2File = new Scanner(mountains2);
+
+		while(mountains2File.hasNext()) {
+
+			mountainStack2.push(mountains2File.nextLine());
+
+
+		}
+
+		//print out both stacks, making sure they print in the order 
+		//they are in the stack and the stack remains in its original state
+		System.out.println("");
+		System.out.println("Mountains Stack 1 - filled with values from mountains1.txt");
+		System.out.println("----------------------------------------------------------");
+
+		for(int count = mountainStack1.getSize()-1; count >= 0; count--) {
+
+			mountainStack1.printStack(count);
+			System.out.println("");
+
+		}
+		System.out.println("");
+		System.out.println("Mountains Stack 2 - filled with values from mountains2.txt");
+		System.out.println("----------------------------------------------------------");
+
+		for(int count = mountainStack2.getSize() -1; count >= 0; count--) {
+
+			mountainStack2.printStack(count);
+			System.out.println("");
+
+		}
+
+		//create new stack to merge mountain stacks
+		GenericStack<String> mergedMountainStack = new GenericStack<>();
+
+		//call method to merge mountain stacks together
+		mergeStacks(mountainStack1, mountainStack2, mergedMountainStack);
+
+		//create new stack to reverse the merged stack
+		GenericStack<String> finalMergedMountainStack = new GenericStack<>();
+
+		//call method to reverse merged stack
+		reverseStack(mergedMountainStack, finalMergedMountainStack);
+
+		//print final merged stack
+		System.out.println("");
+		System.out.println("Merged Stack - lowest value on top");
+		System.out.println("------------------------------------------------------");
+		for(int count = finalMergedMountainStack.getSize()-1; count >= 0; count--) {
+
+			finalMergedMountainStack.printStack(count);
+			System.out.println("");
+
+		}
+
+		//print the two merged stacks side by side 
+		//the lowest value in each should be on top
+		System.out.println("");
+		System.out.println("Printing Merged Stacks side by side - lowest value on top");
+		System.out.println("------------------------------------------------------------");
+		System.out.println("Integers\tStrings");
+		System.out.println("------------------------------------------------------------");
+
+		printTwoStack(finalMergedNumStack, finalMergedMountainStack);
+
+		System.out.println("");
+		System.out.println("Number Stack top: " + finalMergedNumStack.peak());
+		System.out.println("String stack top: " + finalMergedMountainStack.peak());
+
+		number1File.close();
+		number2File.close();
+		mountains1File.close();
+		mountains2File.close();
 
 	}
 
+	//this method takes two generic stacks and merges them into one generic stack,
+	//using the compareTo method to handle any type of variable 
+	public static <E extends Comparable<E>> void mergeStacks(GenericStack<E> stack1,
+			GenericStack<E> stack2,
+			GenericStack<E> mergedStack) {
+
+		while(stack1.isEmpty() && stack2.isEmpty()) {
+
+			if(stack1.peak().compareTo(stack2.peak()) < 0) {
+
+				mergedStack.push(stack1.peak());
+				stack1.pop();
+
+			}
+
+			else if(stack1.peak().compareTo(stack2.peak()) == 0) {
+
+				mergedStack.push(stack1.peak());
+				stack1.pop();
+				mergedStack.push(stack2.peak());
+				stack2.pop();
+
+			}
+
+			else if(stack1.peak().compareTo(stack2.peak()) > 0) {
+
+				mergedStack.push(stack2.peak());
+				stack2.pop();
+
+			}
+		}
+
+		while(stack1.isEmpty()) {
+
+			mergedStack.push(stack1.peak());
+			stack1.pop();
+
+		}
+
+		while(stack2.isEmpty()) {
+
+			mergedStack.push(stack2.peak());
+			stack2.pop();
+
+		}
+	}
+
+	//this method reverses a generic stack from highest to lowest value
+	//to lowest to highest value
+	public static <E> void reverseStack (GenericStack<E> stack,
+			GenericStack<E> finalMergedStack) {
+
+		while(stack.isEmpty()) {
+
+			finalMergedStack.push(stack.peak());
+			stack.pop();
+
+		}
+
+	}
+
+	//This method takes 2 generic stacks and prints
+	//them side by side.  
+	public static <E, F> void printTwoStack(GenericStack<E> stack1, 
+			GenericStack<F> stack2) {
+
+		int stackPrintCount = 0;
+		int stack1Count = 1;
+		int stack2Count = 1;
+
+		if(stack1.getSize() > stack2.getSize()) {
+
+			stackPrintCount = stack1.getSize();
+
+		}
+
+		else {
+
+			stackPrintCount = stack2.getSize();
+
+		}
+
+		for(int count = stackPrintCount -1; count >= 0; count--) {
+
+			if(stack1.getSize() - stack1Count >= 0) {
+
+				stack1.printStack(stack1.getSize() - stack1Count);
+
+			}
+
+			else {
+
+				System.out.print("----");
+
+			}
+			System.out.print("\t");
+			if(stack2.getSize()- stack2Count >= 0) {
+
+				stack2.printStack(stack2.getSize()- stack2Count);
+
+			}
+
+			else {
+
+				System.out.print("----");
+
+			}
+			System.out.println("");
+			stack1Count++;
+			stack2Count++;
+
+		}
+	}
+
+}
+
+//This class creates generic stack objects, using an 
+//ArrayList.  It should be able to hold any type of
+//value in the stack.  Also contains methods that
+//would be necessary in a generic stack, such as
+//pop(), peek(), and push()
+class GenericStack<E> {
+
+	private ArrayList<E> list = new ArrayList<>();
+
+	public GenericStack() {
+
+		list = new ArrayList<>();
+
+	}
+
+	public int getSize() {
+
+		return list.size();
+
+	}
+
+	public boolean isEmpty() {
+
+		if(list.size() == 0) {
+
+			return false;
+
+		}
+
+		else {
+
+			return true;
+		}
+
+	}
+
+	public E peak() {
+		
+		if(list.size() > 0) {
+
+		return list.get(list.size()-1);
+		
+		}
+		
+		else {
+			
+			return list.get(list.size());
+			
+		}
+
+	}
+
+	public void push(E E) {
+
+		list.add(E);
+
+	}
+
+	public void pop() {
+		
+		if(list.size() >0) {
+		
+			list.remove(list.size()-1);
+		}
+	}
+
+	public void printStack(int index) {
+
+		System.out.print(list.get(index));
+
+	}
 }

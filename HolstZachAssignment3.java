@@ -1,149 +1,443 @@
+
 /*
  * Zach Holst
- * CS1150
- * Sept 19, 2019
+ * CS 1450 Sec 001
  * Assignment 3
- * This program creates a tuition cost calculator, allowing the user
- * to input their class level and number of credit hours to determine
- * the cost of tuition and the total fee per credit hour
+ * February 13, 2020
+ * The purpose of this assignment is to create a program
+ * that creates insect objects with different parameters
+ * and abilities, making use of interfaces for attributes 
+ * of the objects.  It also gives practice into
+ * making an ArrayList to hold objects
  */
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
-public class HolstZachAssignment3 
-{
+public class HolstZachAssignment3 {
 
-	public static void main(String[] args) 
-	{
-		//Declare constants that represent the cost per credit hour
-		//for the selected class level
-		//Declare constant for base fee
-		final double FRESHMAN_TUITION = 380.0;
-		final double SOPHOMORE_TUITION = 400.0;
-		final double JUNIOR_TUITION = 430.0;
-		final double SENIOR_TUITION = 451.0;
-		final double BASE_FEE = 200.0;
-		//create a new scanner
-		Scanner input = new Scanner(System.in);
-		//create menu with options for class levels and cost per credit hour
-		System.out.println("Welcome to Tuition Calculator");
-		System.out.println(" ");
-		System.out.println("Option     Level               Cost Per Credit Hour");
-		System.out.println("---------------------------------------------------");
-		System.out.println("1          Freshman	       380.0");
-		System.out.println("2          Sophomore           400.0");
-		System.out.println("3          Junior              430.0");
-		System.out.println("4          Senior              451.0");
-		System.out.println("---------------------------------------------------");
-		System.out.println(" ");
-		//ask user what class level
-		System.out.print("Select class level: 1, 2, 3, 4: ");
-		{int classLevel = input.nextInt();
-		//create a nested if statement for the class level and the numCreditHours
-		//each if statement includes every equation needed to be put into the table
-		//the first if statement determines if the input value for Class value 
-		//is valid or not
-		//if invalid, it will skip all other if statements, display an error
-		//message and not compute anything else
-		//if valid, it will continue on and ask the user for number of credit hours
-		if((classLevel >=1) && (classLevel <=4)) {
-			System.out.print("How man credit hours (1-30)?  ");
-			int numCreditHours = input.nextInt();
-			System.out.println("");
-			//if the user input class level as 1 and had a valid number of credit hours
-			if((classLevel == 1) && ((numCreditHours >= 1) && (numCreditHours <= 30))) {
-				//if the values are true print into the table
-				System.out.println("-------------------------");
-				System.out.println("Level            Freshman");
-				System.out.println("Credit hours     " + numCreditHours);
-				//create an equation with the constant created earlier to find
-				//total cost of tuition
-				double totalCostTuition = FRESHMAN_TUITION * numCreditHours;
-				System.out.println("Tuition          " + totalCostTuition);
-				//create an equation to determine the total fees
-				//based on the total number of credit hours
-				double totalCostFees = BASE_FEE + numCreditHours * 20.00;
-				System.out.println("Fees             " + totalCostFees);
-				System.out.println("-------------------------");
-				//calculate the final cost
-				double finalCost = totalCostFees + totalCostTuition;
-				System.out.println("Total            " + finalCost);
+	public static void main(String[] args) throws IOException {
+
+		//create a file object for insect file
+		File inputFileName = new File("insects.txt");
+
+		//create a scanner to read from the file
+		Scanner inputFile = new Scanner(inputFileName);
+
+		//create polymorphic array to hold insect objects
+		Insect[] insects = new Insect[inputFile.nextInt()];
+
+		String type = "";
+		String name = "";
+		int pollinateAbility = 0;
+		int buildAbility = 0;
+		int predatorAbility = 0;
+		int decomposerAbility = 0;
+
+		//using a for loop, go through the file and create
+		//necessary insect objects based off of their information,
+		//using if statements to determine the type and which
+		//type of insect to create
+		for(int count = 0; count < insects.length; count++) {
+
+			type = inputFile.next();
+			name = inputFile.next();
+			pollinateAbility = inputFile.nextInt();
+			buildAbility = inputFile.nextInt();
+			predatorAbility = inputFile.nextInt();
+			decomposerAbility = inputFile.nextInt();
+
+			if(type.equals("h")) {
+
+				insects[count] = new Honeybee(name, pollinateAbility, buildAbility);
+
 			}
-			else {
-				//if the user input class level as 2 and had a valid number of credit hours
-				if((classLevel == 2) && ((numCreditHours >= 1) && (numCreditHours <= 30))) {
-					//if the values are true print into the table
-					System.out.println("-------------------------");
-					System.out.println("Level             Sophomore");
-					System.out.println("Credit hours      " + numCreditHours);
-					//create an equation with the constant created earlier to find
-					//total cost of tuition
-					double totalCostTuition = SOPHOMORE_TUITION * numCreditHours;
-					System.out.println("Tuition           " + totalCostTuition);
-					//create an equation to determine the total fees
-					//based on the total number of credit hours
-					double totalCostFees = BASE_FEE + numCreditHours * 20.00;
-					System.out.println("Fees              " + totalCostFees);
-					System.out.println("--------------------------");
-					//calculate the final cost
-					double finalCost = totalCostFees + totalCostTuition;
-					System.out.println("Total             " + finalCost);
-				}
-				else {
-					//if the user input class level as 3 and had a valid number of credit hours
-					if((classLevel == 3) && ((numCreditHours >= 1) && (numCreditHours <= 30))) {
-						//if the values are true print into the table
-						System.out.println("-------------------------");
-						System.out.println("Level             Junior");
-						System.out.println("Credit hours      " + numCreditHours);
-						//create an equation with the constant created earlier to find
-						//total cost of tuition
-						double totalCostTuition = JUNIOR_TUITION * numCreditHours;
-						System.out.println("Tuition           " + totalCostTuition);
-						//create an equation to determine the total fees
-						//based on the total number of credit hours
-						double totalCostFees = BASE_FEE + numCreditHours * 20.00;
-						System.out.println("Fees              " + totalCostFees);
-						System.out.println("--------------------------");
-						//calculate the final cost
-						double finalCost = totalCostFees + totalCostTuition;
-						System.out.println("Total             " + finalCost);
-					}
-					else {
-						//if the user input class level as 4 and had a valid number of credit hours
-						if((classLevel == 4) && ((numCreditHours >= 1) && (numCreditHours <= 30))) {
-							//if the values are true print into the table
-							System.out.println("-------------------------");
-							System.out.println("Level             Senior");
-							System.out.println("Credit hours      " + numCreditHours);
-							//create an equation with the constant created earlier to find
-							//total cost of tuition
-							double totalCostTuition = SENIOR_TUITION * numCreditHours;
-							System.out.println("Tuition           " + totalCostTuition);
-							//create an equation to determine the total fees
-							//based on the total number of credit hours
-							double totalCostFees = BASE_FEE + numCreditHours * 20.00;
-							System.out.println("Fees              " + totalCostFees);
-							System.out.println("--------------------------");
-							//calculate the final cost
-							double finalCost = totalCostFees + totalCostTuition;
-							System.out.println("Total             " + finalCost);
-						}
-						else {
-							//if the number of credit hours was invalid, an error message will be displayed
-							//and nothing will be computed
-							System.out.println(numCreditHours + " is an invalid number of credit hours, please run the program again.");
-						}
-					}
-				}
+
+			else if(type.equals("l")) {
+
+				insects[count] = new Ladybug(name, pollinateAbility, predatorAbility);
+
+			}
+
+			else if(type.equals("a")) {
+
+				insects[count] = new Ant(name, buildAbility, predatorAbility, decomposerAbility);
+
+			}
+
+			else if(type.equals("p")) {
+
+				insects[count] = new PrayingMantis(name, predatorAbility);
+
 			}
 		}
-		else {
-			System.out.println(classLevel + " is an invalid menu item, please run the program again.  ");
+
+		//print to the console all of the insects that don't help
+		//with decomposition, calling the doNotDecompose method
+		//and creating an ArrayList to find the indexes of the insects
+		//that don't help decompose
+
+		System.out.println("INSECTS THAT DON'T HELP WITH DECOMPOSITION!");
+		System.out.println("-------------------------------------------");
+		
+		ArrayList<Insect> doNotDecompose = findDoNotDecompose(insects);
+
+		for(int count = 0; count < doNotDecompose.size(); count++) {
+			
+			displayAbilities(doNotDecompose.get(count));
+			
 		}
+		
+		//now print out the most able insect, finding the index
+		//of the object with the findMostAble method
+		System.out.println("");
+		System.out.println("INSECTS WITH MOST ABILITIES!");
+		System.out.println("----------------------------");
+		
+		int mostAbleIndex = findMostAble(insects);
+		
+		System.out.println("The winner is " + insects[mostAbleIndex].getName() + " the " + insects[mostAbleIndex].getType());
+		
+		displayAbilities(insects[mostAbleIndex]);
+
+		//close the file
+		inputFile.close();
+		
+	}	//end main
+
+	//this method goes through all of the insect objects in the
+	//polymorphic array and determines which objects do not
+	//have a decompose ability.  Each object without a 
+	//decompose ability is added to an ArrayList 
+	public static ArrayList<Insect> findDoNotDecompose(Insect[] insects) {
+
+		ArrayList<Insect>doNotDecompose = new ArrayList<>();
+
+		for(int count = 0; count < insects.length; count++) {
+
+			if (!(insects[count] instanceof Decomposer)) {
+				
+				doNotDecompose.add(insects[count]);
+				
+			}
 		}
 
-		//close scanner
-		input.close();
+		return doNotDecompose;
+
+	}
+
+	//This method goes through all of the insect objects in
+	//the polymophic array and determines which insect has the
+	//greatest number of abilities.
+	public static int findMostAble(Insect[] insects) {
+
+		int mostAble = 0;
+		int mostAbleSoFar = 0;
+		int mostAbleIndex = 0;
+
+		for(int count = 0; count < insects.length; count++) {
+
+			if(insects[count] instanceof Pollinator) {
+
+				mostAble = mostAble + ((Pollinator) insects[count]).pollinate();
+				
+			}
+
+			if(insects[count] instanceof Builder) {
+
+				mostAble = mostAble + ((Builder) insects[count]).build();
+				
+			}
+
+			if(insects[count] instanceof Predator) {
+
+				mostAble = mostAble + ((Predator) insects[count]).predator();
+				
+			}
+
+			if(insects[count] instanceof Decomposer) {
+
+				mostAble = mostAble + ((Decomposer) insects[count]).decompose();
+				
+			}
+			
+			if(mostAble > mostAbleSoFar) {
+				
+				mostAbleSoFar = mostAble;
+				mostAbleIndex = count;
+				
+			}
+				
+			mostAble = 0;
+		}
+
+		return mostAbleIndex;
+
+	}
+
+	//Displays all information from the insect objects.
+	//their name, type, abilities, purpose, and the 
+	//numeric ability value.  
+	public static void displayAbilities(Insect insect) {
+
+		if(!(insect instanceof Decomposer)) {
+			
+			System.out.println(insect.getName() + " is a " + insect.getType() +" and does not help with decomposition");
+			
+		}
+		
+		insect.purpose();
+
+		if(insect instanceof Pollinator){
+
+			System.out.println("Pollinating ability " + ((Pollinator) insect).pollinate());
+
+		}
+
+		if(insect instanceof Builder) {
+
+			System.out.println("Building ability " + ((Builder) insect).build());
+
+		}
+
+		if(insect instanceof Predator) {
+
+			System.out.println("Predator ability " + ((Predator) insect).predator());
+
+		}
+
+		if(insect instanceof Decomposer) {
+
+			System.out.println("Decompose ability " + ((Decomposer) insect).decompose());
+
+		}
+
+		System.out.println("");
+
+	}
+
+} //end Assignment 3
+
+//create interfaces for four abilities that insects have
+//pollinate, build, predator, decompose
+//the methods are abstract
+interface Pollinator {
+
+	public abstract int pollinate();
+
+}
+
+interface Builder {
+
+	public abstract int build();
+
+}
+
+interface Predator {
+
+	public abstract int predator();
+
+}
+
+interface Decomposer {
+
+	public abstract int decompose();
+
+}
+
+//creates an insect class, this is the super class
+//has methods to get the objects name, type, and purpose
+abstract class Insect {
+
+	private String type;
+	private String name;
+
+	public String getType() {
+
+		return type;
+
+	}
+
+	public String getName() {
+
+		return name;
+
+	}
+
+	public void setType(String type) {
+
+		this.type = type;
+
+	}
+
+	public void setName(String name) {
+
+		this.name = name;
+
+	}
+
+	public abstract void purpose();
+
+}
+
+//create subclasses for each type of insect to extend
+//the insect class.  Implement needed interfaces based
+//off of the insects abilities.  
+//should override needed interface methods and the purpose
+//method
+class Honeybee extends Insect implements Pollinator, Builder {
+
+	private int pollinateAbility;
+	private int builderAbility;
+
+	public Honeybee(String name, int pollinateAbility, int builderAbility) {
+		
+		setName(name);
+		setType("Honeybee");
+		
+		this.pollinateAbility = pollinateAbility;
+		this.builderAbility = builderAbility;
+ 
+	}
+
+	@Override
+	public void purpose() {
+		
+
+		System.out.println("I'm popular for producing honey but I also pollinate ");
+		System.out.println("35% of the crops! Without me, 1/3 of the food ");
+		System.out.println("you eat would not be available!");
+	}
+
+	@Override
+	public int pollinate() {
+
+		return pollinateAbility;
+
+	}
+
+	@Override
+	public int build() {
+
+		return builderAbility;
+
 	}
 }
 
+class Ladybug extends Insect implements Pollinator, Predator {
+
+	private int pollinateAbility;
+	private int predatorAbility;
+
+	public Ladybug(String name, int pollinateAbility, int predatorAbility) {
+		
+		setName(name);
+		setType("Ladybug");
+		
+		this.pollinateAbility = pollinateAbility;
+		this.predatorAbility = predatorAbility;
+
+	}
+
+	@Override
+	public void purpose() {
+
+		System.out.println("Named after the Virgin Mary, I'm considered good ");
+		System.out.println("luck if I land on you! I'm a pest control expert eating up to 5,000 ");
+		System.out.println("plant pests during my life span.");
+		
+	}
+
+	@Override
+	public int pollinate() {
+
+		return pollinateAbility;
+
+	}
+
+	@Override
+	public int predator() {
+
+		return predatorAbility;
+
+	}
+}
+
+class Ant extends Insect implements Builder, Predator, Decomposer {
+
+	private int builderAbility;
+	private int predatorAbility;
+	private int decomposerAbility;
+
+	public Ant(String name, int builderAbility, int predatorAbility, int decomposerAbility) {
+		
+		setName(name);
+		setType("Ant");
+		
+		this.builderAbility = builderAbility;
+		this.predatorAbility = predatorAbility;
+		this.decomposerAbility = decomposerAbility;
+		
+	}
+
+	@Override
+	public void purpose() {
+
+		System.out.println("Don't squash me, I'm an ecosystem engineer!");
+		System.out.println("Me and my 20 million friends accelerate decomposition of dead wood,");
+		System.out.println("aerate soil, improve drainage, and eat insects like ticks and termites!");
+
+	}
+
+	@Override
+	public int build() {
+
+		return builderAbility;
+
+	}
+
+	@Override
+	public int predator() {
+
+		return predatorAbility;
+
+	}
+
+	@Override
+	public int decompose() {
+
+		return decomposerAbility;
+
+	}
+}
+
+class PrayingMantis extends Insect implements Predator {
+
+	private int predatorAbility;
+
+	public PrayingMantis(String name, int predatorAbility) {
+		
+		setName(name);
+		setType("Praying Mantis");
+		
+		this.predatorAbility = predatorAbility;
+
+	}
+
+	@Override
+	public void purpose() {
+
+		System.out.println("I'm an extreme predator quick enough to catch a fly. ");
+		System.out.println("Release me in a garden and I'll eat beetles, ");
+		System.out.println("grasshoppers, crickets and even pesky moths.");
+
+	}
+
+	@Override
+	public int predator() {
+
+		return predatorAbility;
+
+	}
+}

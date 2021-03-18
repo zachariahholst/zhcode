@@ -1,106 +1,221 @@
-import java.util.Scanner;
-
 /*
  * Zach Holst
- * CS1150
- * Sept 12, 2019
- * Assignment 2
- *This program creates a water drip calculator to determine the 
- *number of gallons of water are wasted by dripping faucets in
- *2 different cities per day and per year
+ * CS 1450 section 1
+ * February 6, 2020
+ * The purpose of this assignment is to get better
+ * practice working with objects and the concepts
+ * of polymorphism and inheritence, as well as putting
+ * objects in an array and creating them from a file.
+ * 
  */
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Scanner;
+
 public class HolstZachAssignment2 {
 
-	public static void main(String[] args) 
-	{
-		// Create a Scanner object
-		Scanner input = new Scanner(System.in);
+	public static void main(String[] args) throws IOException {
 		
-		//Create a table for city 1 info
-		System.out.println("City 1 Drip Information:");
-		System.out.println("------------------------");
+		//Create a file object to open the train file for reading
+		//create a scanner object to use methods in the scanner
+		//class to read from the file
 		
-			//Ask user for number of homes in city 1
-			System.out.print("Enter number of homes in city 1:  ");
-			double city1Homes = input.nextDouble();
+		File inputFileName = new File("trains.txt");
 		
-			//Ask user for average number of dripping faucets in each home
-			System.out.print("Enter average number of dripping faucets in each home:  ");
-			double city1Faucets = input.nextDouble();
+		Scanner inputFile = new Scanner(inputFileName);
 		
-			//Ask user for average number of drips per minute
-			System.out.print("Enter average number of drips per minute:  ");
-			double city1DripsPerMinute = input.nextDouble();
+		//create an array to hold the trains, using the first value
+		//in the file as the array's size
 		
-			//Calculate number of gallons wasted in one day and one year for city 1
-			//first compute number of drips per day for one faucet
-			//then compute number of drips per day for all faucets
+		Train[] trains = new Train[inputFile.nextInt()];
 		
-			double city1DripsPerDay = city1DripsPerMinute * 86400;
+		//Go through each line of the file, reading the type,
+		//top speed, and name.  Using if else statements, 
+		//it will determine which type has been read and which 
+		//object to create.  the objects will be put in the trains
+		//array previously created
 		
-			double city1DripsPerDayForAllHomes = city1DripsPerDay * city1Faucets * city1Homes;
+		String type = "";
+		String name = "";
+		double topSpeed = 0;
 		
-			double city1GallonsPerDay = city1DripsPerDayForAllHomes / 15140;
+		for(int count = 0; count < trains.length; count++) {
+			
+			type = inputFile.next();
+			topSpeed = inputFile.nextDouble();
+			name = inputFile.nextLine();
+			
+			if(type.equals("highspeed")) {
+				
+				trains[count] = new Highspeed(name, topSpeed);
+				
+			}
+			
+			else if(type.equals("monorail")) {
+				
+				trains[count] = new Monorail(name, topSpeed);
+				
+			}
+			
+			else if(type.equals("lightrail")) {
+				
+				trains[count] = new Lightrail(name, topSpeed);
+				
+			}
+			
+			else if(type.equals("cog")) {
+				
+				trains[count] = new CogTrain(name, topSpeed);
+				
+			}
+			
+		}
 		
-			double city1GallonsPerYear = city1GallonsPerDay * 365;
+		//now that all objects have been created, it will iterate
+		//through the trains array and display all information, 
+		//including the benefits, from each object and subclass
+		//to the console
 		
-		
-		System.out.println(" ");
-		//Create a table for city 2 info
-		System.out.println("City 2 Drip Information:");
-		System.out.println("------------------------");
-		
-			//Repeat for city 2
-			//Ask user for number of homes in city 1
-			System.out.print("Enter number of homes in city 2:  ");
-			double city2Homes = input.nextDouble();
-		
-			//Ask user for average number of dripping faucets in each home
-			System.out.print("Enter average number of dripping faucets in each home:  ");
-			double city2Faucets = input.nextDouble();
-		
-			//Ask user for average number of drips per minute
-			System.out.print("Enter average number of drips per minute:  ");
-			double city2DripsPerMinute = input.nextDouble();
-		
-			//Repeat calculations for city 2
-		
-			double city2DripsPerDay = city2DripsPerMinute * 1440;
-		
-			double city2DripsPerDayForAllHomes = city2DripsPerDay * city2Faucets * city1Homes;
-		
-			double city2GallonsPerDay = city2DripsPerDayForAllHomes / 15140;
-		
-			double city2GallonsPerYear = city2GallonsPerDay * 365;
-		
-		
-		System.out.println(" ");
-		//Create a table for the results of the inputs
-		System.out.println("****************************************************************************");
-		System.out.println("			     Water Drip Calculator");
-		System.out.println("****************************************************************************");
+		System.out.println("-------------------------------------------------------------------------------------------");
+		System.out.printf("%-15s", "Type");
+		System.out.printf("%-22s", "Name");
+		System.out.printf("%-14s", "Top Speed");
+		System.out.printf("%-40s", "Benefit" );
 		System.out.println("");
-		System.out.println("Homes		Faucets		Drips/Minute	Gallons/Day	Gallons/year");
-		System.out.println("----------------------------------------------------------------------------");
-			System.out.printf("%.0f", city1Homes);
-			System.out.printf("\t\t%.0f", city1Faucets);
-			System.out.printf("\t\t%.0f", city1DripsPerMinute);
-			System.out.printf("\t\t%.2f", city1GallonsPerDay);
-			System.out.printf("\t%.2f", city1GallonsPerYear);
-		System.out.println("");
-			System.out.printf("%.0f", city2Homes);
-			System.out.printf("\t\t%.0f", city2Faucets);
-			System.out.printf("\t\t%.0f", city2DripsPerMinute);
-			System.out.printf("\t\t%.2f", city2GallonsPerDay);
-			System.out.printf("\t\t%.2f", city2GallonsPerYear);
-		System.out.println(" ");
-		System.out.println("----------------------------------------------------------------------------");
-			System.out.printf("\t\t\t\t\t\t%.2f", city1GallonsPerDay + city2GallonsPerDay);	//gives total number gallons per day of both cities
-			System.out.printf("\t%.2f", city1GallonsPerYear + city2GallonsPerYear);			//gives total number gallons per year of both cities
-			System.out.println("  ");
+		System.out.println("-------------------------------------------------------------------------------------------");
+
+		for(int count = 0; count < trains.length; count++) {
+			
+			System.out.printf("%-14s", trains[count].getType());
+			System.out.printf("%-23s", trains[count].getName());
+			System.out.printf("%-14s", trains[count].getTopSpeed());
+			System.out.printf("%1s", trains[count].benefit() );
+			System.out.println("");
+			
+		}
 		
-		input.close();
+		inputFile.close();
 
 	}
 
+} //end main
+
+//Create a Train class to be the super class.  It will have 3 private
+//data fields, a string for the type, a string for the name, and a 
+//double for the speed of the train.  Then, 4 subclasses of train, 
+//each will override the benefits() method of the Train superclass
+//to change what they display
+
+class Train {
+	
+	private String type;
+	private String name;
+	private double topSpeed;
+	
+	public Train(String type, String name, double topSpeed) {
+		
+		this.type = type;
+		this.name = name;
+		this.topSpeed = topSpeed;
+		
+	}
+	
+	public String getType() {
+		
+		return type;
+		
+	}
+	
+	public String getName() {
+		
+		return name;
+		
+	}
+	
+	public double getTopSpeed() {
+		
+		return topSpeed;
+		
+	}
+	
+	public String benefit() {
+		
+		return "benefit";
+		
+	}
 }
+
+class Highspeed extends Train {
+	
+	public Highspeed(String name, double topSpeed) {
+		
+		super("highspeed", name, topSpeed);
+		
+	}
+	
+	@Override
+	public String benefit() {
+		
+		return "Travels at speeds between 125 and 267 mph";
+		
+	}
+	
+	
+}
+
+class Monorail extends Train {
+	
+	public Monorail(String name, double topSpeed) {
+		
+		super("monorail", name, topSpeed);
+		
+	}
+	
+	@Override
+	public String benefit() {
+		
+		return "minimal footprint and quieter";
+		
+	}
+	
+	
+}
+
+class Lightrail extends Train {
+	
+	public Lightrail(String name, double topSpeed) {
+		
+		
+		super("lightrail", name, topSpeed);
+		
+	}
+	
+	@Override
+	public String benefit() {
+		
+		return "Tighter turning radius";
+		
+	}
+	
+	
+}
+
+class CogTrain extends Train {
+	
+	
+	public CogTrain(String name, double topSpeed) {
+		
+		super("cog", name, topSpeed);
+		
+	}
+	
+	@Override
+	public String benefit() {
+		
+		return "Can climb grades up to 48%";
+		
+	}
+	
+}
+

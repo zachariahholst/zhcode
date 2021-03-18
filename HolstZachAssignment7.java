@@ -1,272 +1,371 @@
 /*
  * Zach Holst
- * CS1150
- * October 17, 2019
+ * CS 1450 Sec 001
  * Assignment 7
- * The purpose of this code is to create a calorie calculator using different
- * methods throughout the program in order to obtain needed values
- * so the user's bmr can be calculated.
+ * April 9, 2020
+ * This program simulates an escape room game.  It makes use of
+ * queues, a custom implemented priority queue, objects within objects
+ * and a hash key to create a score for a player object based off of 
+ * their name and their ranking.  It provides practice for nested classes,
+ * as the majority of the program is using classes and objects 
  */
-//import scanner
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Scanner;
+
 public class HolstZachAssignment7 {
 
-	//declare main method
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
 
-		//create new scanner input
-		Scanner input = new Scanner(System.in);
+		final int NUM_SEATS = 25;
 
-		//begin user menu
-		System.out.println("How many calories do you need?");
-		System.out.println("--------------------------------");
+		//create an array that hold players at different "seat" locations
+		//this players are added to the escape room
+		Player seats[] = new Player[NUM_SEATS];
 
-		//call displayResults method
-		//this method calls the methods getGender, getAge, getHeight, getWeight, and basalMetabolicRate
-		displayResults(basalMetabolicRate (getGender(input), getAge(input), getHeight(input), getWeight(input)));
+		//create file and scanner to add players to the seats array
+		//using a while loop until file is empty
+		File playerFile = new File("players.txt");
 
-		//after all other methods have been called, method continueProcessing is called
-		//this method determines if the user would like to begin again and call the 
-		//method displayResults again
-		boolean processing = continueProcessing (input);
+		Scanner playersScanner = new Scanner(playerFile);
 
-		//a while loop is used to call the method displayResults for every time
-		//the user enters that they wish to begin again
-		while (processing) {
+		while(playersScanner.hasNext()) {
 
-			System.out.println("");
+			Player player = new Player(playersScanner.next(), 
+					playersScanner.nextInt(), playersScanner.nextInt());
 
-			displayResults(basalMetabolicRate (getGender(input), getAge(input), getHeight(input), getWeight(input)));
-
-			processing = continueProcessing (input);
+			seats[player.getSeat()] = player;
 
 		}
 
-		//display a goodbye message once user is finished
-		System.out.println("Have a healthy day!");
+		//create an escape game and escape game controller object
+
+		EscapeGame escapeGame = new EscapeGame();
+		EscapeGameController escapeGameController = new EscapeGameController();
+
+		//move players from waiting seats into the escape game with
+		//method within escape game controller class
+		escapeGameController.movePlayerIntoEscapeGame(seats, escapeGame);
+
+		//simulate game with simulateEscapeGame method
+		escapeGameController.simulateGame(escapeGame);
+
+		//display results with displayResults method
+		escapeGameController.displayResults(escapeGame);
+
+		playersScanner.close();
+	}
+} //main and class
+
+//this class represents a player object
+//implements comparable for priority queue
+//overrides compare to method, comparing the score of two player objects
+class Player implements Comparable<Player>{
+
+	private String name;
+	private int ranking;
+	private int seat;
+	private int score;
+
+	public Player(String name, int ranking, int seat) {
+
+		this.name = name;
+		this.ranking = ranking;
+		this.seat = seat;
+		score = 0;
 
 	}
 
-	//this method is used to prompt the user to enter their gender.
-	//a while loop is used to handle invalid user inputs.
-	//once a valid input is given, the value will be returned.
-	//possible values are 'M' for Male and 'F' for Female, not case sensitive.
-	public static char getGender (Scanner input) {
+	public String getName() {
 
-		final char MALE = 'M';
-		final char FEMALE = 'F';
-
-		System.out.print("Enter your gender (M/F): ");
-
-		char userGender = input.next().toUpperCase().charAt(0);
-
-		while((userGender != MALE) && (userGender != FEMALE)) {
-			System.out.print(userGender + " is not a valid gender.  Reenter gender (M/F): ");
-			userGender = input.next().toUpperCase().charAt(0);
-		}
-		if(userGender == 'M') {
-			return MALE;
-		}
-
-		else {
-			return FEMALE;
-		}
+		return name;
 
 	}
 
-	//this method is used to prompt the user to enter their age.
-	//a while loop is used to handle invalid entries.
-	//age must be in the range of 1-100 or it is invalid.
-	//the user age is returned at the end of the method
-	public static double getAge (Scanner input) {
+	public int getRanking() {
 
-		System.out.print("Enter your age: ");
+		return ranking;
 
-		double userAge = input.nextDouble();
-
-		while((userAge < 1) || (userAge > 100)) {
-			System.out.print(userAge + " is not a valid age.  Reenter your age: ");
-			userAge = input.nextDouble();
-		}
-		return userAge;
 	}
 
-	//this method prompts the user to enter their height.
-	//height is taken in both feet and inches.
-	//feet is converted to inches within the method.
-	//a while statement is used to handle invalid entries.
-	//the total height entered must be no less than 1 foot and no greater than 9 feet.
-	//entering a number less than 0 or greater than 11 is considered invalid for inches.
-	//entering a number less than 1 or greater than 9 is considered invalid for feet.
-	//the total height is returned at the end of the method, all units converted to inches
-	public static double getHeight (Scanner input) {
+	public int getSeat() {
 
-		final int INCHES_PER_FOOT = 12;
+		return seat;
 
-		System.out.print("Enter height in feet: ");
-
-		double heightFeet = input.nextDouble();
-
-		System.out.print("Enter height in inches: ");
-
-		double heightInches = input.nextDouble();
-
-		double totalHeight = heightInches + (heightFeet * INCHES_PER_FOOT);
-
-		while((totalHeight < 12 ) || (totalHeight > 108) || ((heightInches < 0) || (heightInches >= 12)) || ((heightFeet < 1) || (heightFeet > 9))) {
-			System.out.println(heightFeet + " feet " + heightInches + " inches is not a valid height.  Reenter your height: ");
-
-			System.out.print("Enter height in feet: ");
-
-			heightFeet = input.nextDouble();
-
-			System.out.print("Enter height in inches: ");
-
-			heightInches = input.nextDouble();
-
-			totalHeight = heightInches + (heightFeet * INCHES_PER_FOOT);
-
-		}
-		return totalHeight;
 	}
 
-	//this method prompts the user to enter their weight in pounds
-	//a while loop is used to handle invalid entries
-	//weight must be a positive number or it is invalid
-	//0 pounds is also considered invalid
-	//user weight is returned at the end of the method
-	public static double getWeight (Scanner input) {
+	public int getScore() {
 
-		System.out.print("Enter weight in pounds: ");
+		return score;
 
-		double userWeight = input.nextDouble();
-
-		while(userWeight < 1) {
-
-			System.out.print(userWeight + " is not a valid weight.  Reenter your weight: ");
-
-			userWeight = input.nextDouble();
-		}
-
-		return userWeight;
 	}
 
-	//this method uses the values returned from the previous methods to calculate the user's bmr
-	//the Harris Benedict formula is used to calculate the bmr
-	//Male bmr = 66 + (6.23 * weight in pounds) + (12.7 * height in inches) - (6.8 * age)
-	//female bmr = 66 + (4.35 * weight in pounds) + (4.7 * height in inches) - (4.7 * age)
-	//returns bmr at the end of the method
-	public static double basalMetabolicRate (char gender, double age, double height, double weight) {
+	public void setScore(int score) {
 
-		double userCaloriesNeeded = 0;
+		this.score = score;
 
-		if(gender == 'M') {
+	}
 
-			userCaloriesNeeded = 66 + (6.23 * weight) + (12.7 * height) - (6.8 * age);
+	@Override
+	public int compareTo(Player otherPlayer) {
+
+		if(score < otherPlayer.getScore()) {
+
+			return -1;
+
+		}
+
+		else if(score > otherPlayer.getScore()) {
+
+			return 1;
+
 		}
 		else {
-			userCaloriesNeeded = 655 + (4.35 * weight) + (4.7 * height) - (4.7 * age);
-		}
 
-		return userCaloriesNeeded;
+			return 0;
+
+		}
 	}
+}
 
-	//this method is used to calculate bmr based on different activity levels
-	//a switch statement is used to determine what value to return for bmr
-	//based on the activity level
-	public static double dailyCaloriesWithActivity (double bmr, int activityLevel) {
+//Represents an escape room.  uses a hash key to create a score
+//for the players that enter the escape room by concatenating
+//their name and rank
+class EscapeRoom {
 
-		final int SEDENTARY = 1;
-		final int LIGHTLY_ACTIVE = 2;
-		final int MODERATELY_ACTIVE = 3;
-		final int VERY_ACTIVE = 4;
-		final int EXTRA_ACTIVE = 5;
+	private int hash(String key) {
 
-		switch (activityLevel) {
+		int hash = 0;
+		for(int i = 0; i<key.length(); i++) {
 
-		case SEDENTARY:
-			bmr = bmr * 1.2;
-			return bmr;
-
-		case LIGHTLY_ACTIVE:
-			bmr = bmr * 1.375;
-			return bmr;
-
-		case MODERATELY_ACTIVE:
-			bmr = bmr * 1.55;
-			return bmr;
-
-		case VERY_ACTIVE:
-			bmr = bmr * 1.725;
-			return bmr;
-
-		case EXTRA_ACTIVE:
-			bmr = bmr * 1.9;
-			return bmr;
+			hash += key.charAt(i);
+			hash += (hash << 10);
+			hash ^=(hash >>6);
 		}
-		return bmr;
+		hash += (hash << 3);
+		hash ^= (hash >> 11);
+		hash += (hash << 15);
+
+		return Math.abs(hash);
 
 	}
 
-	//this method is void and does not return any results
-	//this method displays all of the calculated information from previous methods,
-	//such as the bmr based on different activity levels
-	public static void displayResults(double bmr) {	
+	public int tryToEscape(String playerName, int playerRanking) {
 
-		System.out.println("******************************************");
-		System.out.printf("Your BMR is %.2f", bmr);
-		System.out.println(" Calories/Day");
-		System.out.println("******************************************");
-		System.out.println(" ");
-		System.out.println("Daily calorie needs based on activity level");
-		System.out.println(" ");
-		System.out.println("-------------------------------------------------");
-		System.out.println("Activity Level                       Calories");
-		System.out.println("-------------------------------------------------");
-		System.out.printf("Sedentary: little or no exercise    %.2f", dailyCaloriesWithActivity (bmr, 1));
-		System.out.println("");
-		System.out.printf("Exercise 1-3 times/week             %.2f", dailyCaloriesWithActivity (bmr, 2));
-		System.out.println("");
-		System.out.printf("Exercise 4-5 times/week             %.2f", dailyCaloriesWithActivity (bmr, 3));
-		System.out.println("");
-		System.out.printf("Intense exercise 6-7 times/week     %.2f", dailyCaloriesWithActivity (bmr, 4));
-		System.out.println("");
-		System.out.printf("Very intense daily or physical job  %.2f", dailyCaloriesWithActivity (bmr, 5));
-		System.out.println("");
-		System.out.println("------------------------------------------------");
-		System.out.println("");
-		System.out.println("");
+		String key = playerName + playerRanking;
+
+		int score = hash(key)%(101);
+
+		return score;	
+	}
+}
+
+//Represents an escape game, with a queue for players waiting to play
+//and a priority queue with players who have played 
+//has method to call tryToEscape from escape room class
+class EscapeGame {
+
+	private Queue<Player> playersWaiting;
+	private PriorityQueue resultsQueue;
+	private EscapeRoom escapeRoom;
+
+	public EscapeGame() {
+
+		playersWaiting = new LinkedList<>();
+		resultsQueue = new PriorityQueue();
+		escapeRoom = new EscapeRoom();
+
 	}
 
-	//this method is used to prompt the user to decide if they want to
-	//go through the program again and do another calorie check.
-	//a while loop is used to handle invalid entries.
-	//if yes is entered, the boolean is true and the while loop at 
-	//the start of the program will begin and another calorie check
-	//will commence.
-	//if no is entered, the boolean is false, a goodbye message is
-	//displayed, and no more processing happens.
-	public static boolean continueProcessing (Scanner input) {
+	public boolean isWaitingQueueEmpty() {
 
-		System.out.print("Perform another calorie check (Y/N)? ");
-		char userAnswer = input.next().toUpperCase().charAt(0);
-
-
-		while((userAnswer != 'Y') && (userAnswer != 'N')) {
-			System.out.println(userAnswer + " is not a valid entry - try again");
-			System.out.println("");
-			System.out.print("Perform another calorie check (Y/N)? ");
-			userAnswer = input.next().toUpperCase().charAt(0);
-
+		if(playersWaiting.size() == 0) {
+			return false;
 		}
-
-		if(userAnswer == 'Y') {
+		else {
 			return true;
 		}
 
-		else {
-			return false;
+	}
+
+	public void addPlayerToWaitingQueue(Player player) {
+
+		playersWaiting.offer(player);
+
+	}
+
+	public Player removePlayerFromWaitingQueue() {
+
+		return playersWaiting.remove();
+
+	}
+
+	public boolean isResultsQueueEmpty() {
+
+		return resultsQueue.isEmpty();
+
+	}
+
+	public void addPlayerToResultsQueue(Player player) {
+
+		resultsQueue.offer(player);
+
+	}
+
+	public Player removePlayerFromResultsQueue() {
+
+		return resultsQueue.remove();
+
+	}
+
+	public Player peekResultsQueue() {
+
+		return resultsQueue.peek();
+
+	}
+
+	public int tryToEscape(String playerName, int playerRanking) {
+
+		return escapeRoom.tryToEscape(playerName, playerRanking);
+
+	}
+}
+
+//this class is used to move players out of the waiting queue to 
+//play the game.  simulates an escape game, applies a score to each
+//player object after calling the tryToEscape method.  then has a method
+//to display results of all player objects
+class EscapeGameController {
+
+	public void movePlayerIntoEscapeGame(Player[] seats, EscapeGame escapeGame) {
+
+		System.out.println("Controller: Moving players from outside seats into escape game");
+		System.out.println("-------------------------------------------------------------");
+
+		for(int i = 0; i < seats.length; i++) {
+			if(seats[i] != null ) {
+
+				System.out.println("Moved into escape game: " + seats[i].getName() + " from outside seat " + seats[i].getSeat());
+				escapeGame.addPlayerToWaitingQueue(seats[i]);
+			}
 		}
 	}
-	//end program
+
+	public void simulateGame (EscapeGame escapeGame) {
+
+		System.out.println("\n\nController: Starting Escape Game - moving players waiting in line to escape room");
+		System.out.println("--------------------------------------------------------------------------------------");
+		System.out.println("Player\tScore\tCurrent Leader");
+		System.out.println("--------------------------------------------------------------------------------------");
+
+		while(escapeGame.isWaitingQueueEmpty()) {
+
+			Player player = escapeGame.removePlayerFromWaitingQueue();
+
+			player.setScore(escapeGame.tryToEscape(player.getName(), player.getRanking()));
+
+			escapeGame.addPlayerToResultsQueue(player);
+
+			System.out.printf("%-8s%-8d%s\n", player.getName(), player.getScore(), escapeGame.peekResultsQueue().getName());	
+		}
+	}
+
+	public void displayResults(EscapeGame escapeGame) {
+
+		System.out.println("\n\nController: Escape Room Results");
+		System.out.println("-------------------------------");
+		System.out.println("Player\tScore");
+		System.out.println("-------------------------------");
+
+		while(escapeGame.isResultsQueueEmpty()) {
+
+			Player player = escapeGame.removePlayerFromResultsQueue();
+
+			System.out.printf("%-8s%d\n", player.getName(), player.getScore());
+		}
+	}
+}
+
+//this class creates the methods needed for a priority queue
+//of player objects.  uses the selection sort algorithm to 
+//sort the priority queue
+class PriorityQueue {
+
+	private Player list[];
+	private int numPlayers;
+
+	public PriorityQueue() {
+
+		list = new Player[30];
+		numPlayers = 0;
+
+	}
+
+	public boolean isEmpty() {
+
+		if(numPlayers == 0) {
+			return false;
+		}
+		else {
+			return true;
+		}
+	}
+
+	public Player peek() {
+
+		if(numPlayers == 0) {
+			return null;
+		}
+		else {
+			return list[numPlayers-1];
+		}
+	}
+
+	public boolean offer(Player player) {
+
+		if(numPlayers == list.length-1) {
+			return false;
+		}
+		else {
+			list[numPlayers] = player;
+			numPlayers++;
+			selectionSort(list, numPlayers);
+			return true;
+		}
+	}
+
+	public Player remove() {
+
+		Player player = peek();
+		list[numPlayers] = null;
+		numPlayers--;
+		return player;
+
+	}
+
+	//Uses selection sort algorithm to sory the queue
+	private void selectionSort (Player[] list, int numPlayers) {
+
+		//move through the array
+		for (int i = 0; i < numPlayers-1; i++) 
+		{ 
+			//find player with lowest score value 
+			int smallestValueIndex = i; 
+			Player lastPlace = list[i];
+
+			for (int j = i+1; j < numPlayers; j++) 
+
+				if (list[j].getScore() < list[smallestValueIndex].getScore())  {
+					smallestValueIndex = j; 
+					lastPlace = list[j];
+				}
+			if(smallestValueIndex != i) {
+				list[smallestValueIndex] = list[i];
+				list[i] = lastPlace;
+			}
+		}
+	}
 }
